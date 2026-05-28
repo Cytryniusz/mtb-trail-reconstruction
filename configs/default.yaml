@@ -1,0 +1,117 @@
+# default.yaml
+# ============
+# Domyslna konfiguracja pipeline'u rekonstrukcji trasy MTB.
+# Wszystkie sciezki sa wzgledne wzgledem korzenia repo.
+#
+# UWAGA: ten plik jest obecnie referencyjny — wartosci sa duplikatami
+# argumentow CLI poszczegolnych skryptow. Pierwsza wersja systemu czyta
+# parametry tylko z argparse; gdy projekt urosnie, mozna dodac loader YAML
+# do scripts/run_all.py (np. przez `pyyaml` -> dataclassy konfiguracyjne).
+
+# --------------------------------------------------------------------------
+# CRS / uklad wspolrzednych
+# --------------------------------------------------------------------------
+crs:
+  source: "EPSG:4326"       # WGS84 (GPX z urzadzen sportowych)
+  target: "EPSG:2180"       # PL-1992 (zgodny z polskimi danymi LiDAR/ortofoto)
+
+# --------------------------------------------------------------------------
+# Sciezki katalogow
+# --------------------------------------------------------------------------
+paths:
+  data_dir: "data"
+  processed_dir: "processed"
+  results_dir: "results"
+  lidar_subdir: "data/lidar"
+  ortho_subdir: "data/ortho"
+  gps_subdir: "data/gps_trace"
+
+# --------------------------------------------------------------------------
+# Krok 1: LiDAR cleanup (SOR + ROR + usuniecie klasy 7)
+# --------------------------------------------------------------------------
+lidar_cleanup:
+  sor_mean_k: 12            # liczba sasiadow dla Statistical Outlier Removal
+  sor_multiplier: 2.2       # mnoznik std dla SOR
+  ror_radius: 1.0           # promien [m] dla Radius Outlier Removal
+  ror_min_neighbors: 4
+
+# --------------------------------------------------------------------------
+# Krok 2: SMRF + ekstrakcja ground
+# --------------------------------------------------------------------------
+smrf:
+  slope: 0.2
+  window: 16.0              # [m]
+  threshold: 0.45           # [m]
+  scalar: 1.2
+dtm:
+  resolution_m: 1.0
+  nodata: -9999.0
+
+# --------------------------------------------------------------------------
+# Krok 3: GPS processing
+# --------------------------------------------------------------------------
+gps:
+  buffer_distance_m: 15.0   # bufor wokol sladu (dla wycinania chmury)
+  smooth_window: 11         # okno Savitzky-Golay (nieparzyste)
+  smooth_polyorder: 3
+
+# --------------------------------------------------------------------------
+# Krok 4: Mesh Delaunay 2.5D
+# --------------------------------------------------------------------------
+mesh:
+  buffer_distance_m: 30.0   # do wyciecia chmury punktow wokol trasy
+  voxel_size_m: 0.0         # 0 = bez decymacji; np. 0.5 dla szybszej wizualizacji
+  track_offset_m: 0.5       # podniesienie sladu nad terenem
+  z_source: "lidar"         # "lidar" lub "gps"
+
+# --------------------------------------------------------------------------
+# Krok 5: Mesh cleanup + LOD
+# --------------------------------------------------------------------------
+mesh_cleanup:
+  max_edge_length_m: 3.0
+  smoothing_iterations: 5
+  taubin_lambda: 0.5
+  taubin_mu: -0.53
+  fill_holes: false         # uwazaj: Open3D moze pomylic boundary z dziura
+  max_hole_size: 100
+lod:
+  targets:                  # liczba trojkatow w kolejnych poziomach LOD
+    - 150000                # LOD0  -- pierwszy plan (0-80 m)
+    - 50000                 # LOD1  -- srednia odleglosc (80-250 m)
+    - 15000                 # LOD2  -- tlo (250-800 m)
+    - 5000                  # LOD3  -- skybox / culling (>800 m)
+  export_formats: ["ply", "obj"]
+
+# --------------------------------------------------------------------------
+# Krok 6: Ortofoto
+# --------------------------------------------------------------------------
+ortho:
+  padding_m: 35.0           # >= mesh.buffer_distance_m
+  output_size_px: 4096      # MUSI byc potega 2 dla Unity
+  resample_method: "bilinear"
+  preview_size_px: 512
+
+# --------------------------------------------------------------------------
+# Krok 7: Splatmap (Unity Terrain Layers)
+# --------------------------------------------------------------------------
+splatmap:
+  resolution_m_per_pixel: 0.5
+  output_size_px: 1024      # potega 2
+  path_buffer_m: 1.5        # szerokosc sciezki MTB
+  path_falloff_m: 1.5       # miekkie krawedzie
+  rock_detection_enabled: true
+  rock_roughness_threshold_m: 0.25
+  smoothing_sigma_m: 1.0
+  bits_per_channel: 8       # 8 lub 16
+
+# --------------------------------------------------------------------------
+# Unity (informacyjnie)
+# --------------------------------------------------------------------------
+unity:
+  render_pipeline: "URP"
+  texture_settings:
+    type: "Default"
+    srgb: true
+    wrap_mode: "Clamp"
+    filter_mode: "Bilinear"
+    generate_mipmaps: true

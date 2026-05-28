@@ -1,0 +1,107 @@
+# ---- Dane wejsciowe i posrednie (poza repo - zbyt duze) ----
+data/lidar/*.laz
+data/lidar/*.las
+data/ortho/*.tif
+data/ortho/*.tiff
+data/ortho/*.jp2
+data/gps_trace/*.gpx
+data/gps_trace/*.fit
+data/gps_trace/*.tcx
+processed/
+results/
+!results/.gitkeep
+!processed/.gitkeep
+
+# ---- Pozwalamy na male przyklady (do README/demo) ----
+!examples/sample_results/*
+!examples/sample_data/*
+
+# ---- Wybrane formaty plikow ----
+*.laz
+*.las
+*.tif
+*.tiff
+*.ply
+*.obj
+*.fbx
+*.gpkg
+*.pcd
+# ...ale pozwalamy na przyklady w examples/
+!examples/**/*.png
+!examples/**/*.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---- Wirtualne srodowiska ----
+.env
+.venv
+env/
+venv/
+ENV/
+
+# ---- Testy / pokrycie ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# ---- Notebooks ----
+.ipynb_checkpoints/
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Unity (gdy doloze podprojekt) ----
+unity/Library/
+unity/Temp/
+unity/Obj/
+unity/Build/
+unity/Builds/
+unity/Logs/
+unity/UserSettings/
+unity/MemoryCaptures/
+unity/*.csproj
+unity/*.sln
+
+# ---- Narzedzia developerskie ----
+.superpowers/
+docs/superpowers/
+.claude/
+
+# ---- Wyniki eksperymentow (logi) ----
+logs/
+*.log

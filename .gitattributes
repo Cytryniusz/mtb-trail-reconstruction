@@ -1,0 +1,17 @@
+# Wymus LF dla skryptow Pythona
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+# Pliki binarne (na wszelki wypadek)
+*.png binary
+*.jpg binary
+*.pdf binary
+*.laz binary
+*.las binary
+*.tif binary
+*.ply binary
+*.obj binary
+*.fbx binary
