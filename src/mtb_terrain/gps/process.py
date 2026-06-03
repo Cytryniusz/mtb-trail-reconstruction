@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-import xml.etree.ElementTree as ET
 
-import matplotlib.pyplot as plt
 import gpxpy
+import matplotlib.pyplot as plt
 
 try:
     import geopandas as gpd
@@ -113,7 +113,7 @@ def print_summary(points: list[GpsPoint]) -> None:
         "Stromy (15-30%)":      (15.0, 30.0),
         "Bardzo stromy (>30%)": (30.0, float("inf")),
     }
-    class_distances = {name: 0.0 for name in SLOPE_CLASSES}
+    class_distances = dict.fromkeys(SLOPE_CLASSES, 0.0)
 
     for i in range(1, len(points)):
         elev_curr = points[i].elevation

@@ -1,5 +1,7 @@
 # MTB Trail Reconstruction
 
+[![CI](https://github.com/Cytryniusz/mtb-trail-reconstruction/actions/workflows/ci.yml/badge.svg)](https://github.com/Cytryniusz/mtb-trail-reconstruction/actions/workflows/ci.yml)
+
 End-to-end pipeline that turns public LiDAR + GPS + aerial imagery into a photorealistic, Unity-ready 3D scene of a mountain bike trail.
 
 > Engineering thesis (Praca inzynierska, 2026). Polish source documentation lives in [`README.pl.md`](README.pl.md).
@@ -13,11 +15,13 @@ End-to-end pipeline that turns public LiDAR + GPS + aerial imagery into a photor
 ## What this project does
 
 Given:
+
 - a raw LiDAR point cloud (`.laz`/`.las`, e.g. from GUGiK in Poland),
 - a GPS track of a ride (`.gpx` from a bike computer or smartphone), and
 - one or more orthophoto tiles (`.tif` GeoTIFF),
 
 it produces:
+
 - a cleaned, classified, decimated terrain mesh in four LOD levels (Unity-ready `.obj`/`.ply`),
 - a power-of-two orthophoto texture, georeferenced to the mesh,
 - a 4-channel terrain splatmap (ground / path / undergrowth / rock) for Unity Terrain Layers,
@@ -105,15 +109,15 @@ mtb-trail-reconstruction/
 
 ## Technology stack
 
-| Domain | Tool | Why |
-|---|---|---|
-| Point clouds | **PDAL** + **laspy** | Industry standard for LAS/LAZ filtering and classification |
-| 3D geometry | **Open3D** | Fast mesh ops, Taubin smoothing, QECD decimation |
-| Geospatial | **GeoPandas**, **Shapely**, **rasterio** | CRS handling, GPKG IO, raster mosaicking |
-| GPS | **gpxpy** | GPX parsing |
-| Imaging | **Pillow** + **NumPy** | Texture resize, splatmap rasterisation |
-| Numerics | **NumPy**, **SciPy** | Delaunay, Savitzky-Golay, gaussian filters |
-| 3D engine | **Unity 2022.3 LTS** (URP) | Target renderer, scene authoring |
+| Domain       | Tool                                     | Why                                                        |
+| ------------ | ---------------------------------------- | ---------------------------------------------------------- |
+| Point clouds | **PDAL** + **laspy**                     | Industry standard for LAS/LAZ filtering and classification |
+| 3D geometry  | **Open3D**                               | Fast mesh ops, Taubin smoothing, QECD decimation           |
+| Geospatial   | **GeoPandas**, **Shapely**, **rasterio** | CRS handling, GPKG IO, raster mosaicking                   |
+| GPS          | **gpxpy**                                | GPX parsing                                                |
+| Imaging      | **Pillow** + **NumPy**                   | Texture resize, splatmap rasterisation                     |
+| Numerics     | **NumPy**, **SciPy**                     | Delaunay, Savitzky-Golay, gaussian filters                 |
+| 3D engine    | **Unity 2022.3 LTS** (URP)               | Target renderer, scene authoring                           |
 
 ## Documentation
 

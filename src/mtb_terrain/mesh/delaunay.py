@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import argparse
-
 from pathlib import Path
 
 import numpy as np
 
-from mtb_terrain.viz.slope_coloring import compute_slope_colors
-from mtb_terrain.viz.elevation_profile import show_elevation_profile
 from mtb_terrain.mesh.terrain import build_delaunay_mesh, build_poisson_mesh, register_mesh_toggle
-
+from mtb_terrain.viz.elevation_profile import show_elevation_profile
+from mtb_terrain.viz.slope_coloring import compute_slope_colors
 
 # Domyslne sciezki sa wzgledne wzgledem cwd (czyli korzenia repo przy uruchamianiu skryptow z scripts/).
 # Mozesz je nadpisac przez argumenty CLI albo edytujac configs/default.yaml.
@@ -40,11 +38,11 @@ def load_point_cloud(path: Path, o3d):
     if path.suffix.lower() in (".laz", ".las"):
         try:
             import laspy
-        except ImportError:
+        except ImportError as exc:
             raise ImportError(
                 "Do odczytu LAZ/LAS potrzebna jest biblioteka laspy. "
                 "Zainstaluj: pip install laspy[lazrs]"
-            )
+            ) from exc
         las = laspy.read(str(path))
         xyz = np.column_stack([
             np.asarray(las.x, dtype=float),
@@ -197,6 +195,7 @@ def points_near_gps_polyline_mask(
             segments_start,
             segment_vectors,
             segment_lengths_sq,
+            strict=False,
         ):
             point_vectors = chunk - segment_start
             t = np.sum(point_vectors * segment_vector, axis=1) / segment_length_sq
@@ -304,7 +303,7 @@ def build_track_geometry(
         geometries.append(line_set)
         return geometries
 
-    for idx, (start, end) in enumerate(zip(gps_points_local[:-1], gps_points_local[1:])):
+    for idx, (start, end) in enumerate(zip(gps_points_local[:-1], gps_points_local[1:], strict=False)):
         cylinder = make_cylinder_between(o3d, start, end, tube_radius)
         if cylinder is not None:
             if slope_colors is not None:
@@ -439,7 +438,7 @@ def parse_args() -> argparse.Namespace:
         help="Generuj siatki terenu Delaunay + Poisson (klawisz M w oknie Open3D).",
     )
     parser.add_argument(
-        "--post-process", 
+        "--post-process",
         action="store_true",
         help="Po wygenerowaniu mesh-a uruchom mesh_pipeline (cleanup + LOD)."
     )

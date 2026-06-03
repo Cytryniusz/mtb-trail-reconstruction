@@ -2,6 +2,7 @@
 Dodaje src/ do sys.path zeby skrypty dzialaly bez `pip install`.
 """
 from __future__ import annotations
+
 import sys
 from pathlib import Path
 

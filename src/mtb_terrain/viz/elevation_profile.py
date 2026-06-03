@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from pathlib import Path
 
 import matplotlib.patches as mpatches
@@ -45,7 +46,7 @@ def show_elevation_profile(
 
     ax.plot(distances, elevations, color="white", linewidth=1.0, alpha=0.9)
 
-    patches = [mpatches.Patch(color=c, label=l) for c, l in _LEGEND_ENTRIES]
+    patches = [mpatches.Patch(color=color, label=label) for color, label in _LEGEND_ENTRIES]
     ax.legend(
         handles=patches,
         loc="upper left",

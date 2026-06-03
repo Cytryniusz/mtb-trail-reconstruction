@@ -9,6 +9,7 @@ Uzycie:
 Pomija etapy ktorych wyniki juz istnieja (idempotentnie).
 """
 from __future__ import annotations
+
 import argparse
 import subprocess
 import sys

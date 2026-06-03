@@ -37,15 +37,12 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import rasterio
-from rasterio.merge import merge as rasterio_merge
-from rasterio.windows import from_bounds
-from rasterio.enums import Resampling
 from PIL import Image
-
+from rasterio.enums import Resampling
+from rasterio.merge import merge as rasterio_merge
 
 # ============================================================================
 # Konfiguracja
@@ -142,8 +139,8 @@ def bbox_from_gpkg(gpkg_path: Path, layer: str = "track_points",
     """Wyznacza bbox z warstwy punktowej GPKG + margines."""
     try:
         import geopandas as gpd
-    except ImportError:
-        raise ImportError("Wymagane: pip install geopandas")
+    except ImportError as exc:
+        raise ImportError("Wymagane: pip install geopandas") from exc
 
     gdf = gpd.read_file(str(gpkg_path), layer=layer)
     if gdf.empty:
@@ -193,12 +190,12 @@ def validate_bbox_in_tifs(bbox: dict, tif_infos: list[dict]) -> None:
 
     if (bbox["xmin"] < all_left or bbox["xmax"] > all_right or
             bbox["ymin"] < all_bottom or bbox["ymax"] > all_top):
-        print(f"  OSTRZEZENIE: bbox trasy wykracza poza zasiag kafli TIF!")
+        print("  OSTRZEZENIE: bbox trasy wykracza poza zasiag kafli TIF!")
         print(f"  Bbox trasy:  X[{bbox['xmin']:.0f},{bbox['xmax']:.0f}] "
               f"Y[{bbox['ymin']:.0f},{bbox['ymax']:.0f}]")
         print(f"  Bbox kafli:  X[{all_left:.0f},{all_right:.0f}] "
               f"Y[{all_bottom:.0f},{all_top:.0f}]")
-        print(f"  Kadrowanie zostanie ograniczone do dostepnych danych.")
+        print("  Kadrowanie zostanie ograniczone do dostepnych danych.")
     else:
         w = bbox["xmax"] - bbox["xmin"]
         h = bbox["ymax"] - bbox["ymin"]
@@ -321,7 +318,7 @@ def save_preview(arr: np.ndarray, path: Path, size: int = 512) -> None:
 
 
 def build_unity_georef(bbox: dict, output_size: int,
-                       unity_centroid: Optional[list] = None) -> dict:
+                       unity_centroid: list | None = None) -> dict:
     """
     Oblicza parametry georeferencji dla Unity:
     - world_bounds: zasiag obszaru w oryginalnych wspolrzednych EPSG:2180
@@ -369,9 +366,9 @@ def build_unity_georef(bbox: dict, output_size: int,
 def run_pipeline(
     tif_paths: list[Path],
     output_dir: Path,
-    gpkg_path: Optional[Path] = None,
-    pipeline_report_path: Optional[Path] = None,
-    config: Optional[OrthoConfig] = None,
+    gpkg_path: Path | None = None,
+    pipeline_report_path: Path | None = None,
+    config: OrthoConfig | None = None,
 ) -> dict:
     """Pelny pipeline: GeoTIFF -> ortho.png + metadane."""
     config = config or OrthoConfig()
@@ -399,7 +396,7 @@ def run_pipeline(
         with open(pipeline_report_path) as f:
             rpt = json.load(f)
         unity_centroid = rpt.get("unity_centroid")
-        print(f"  Zrodlo bbox: pipeline_report.json")
+        print("  Zrodlo bbox: pipeline_report.json")
     else:
         raise ValueError("Podaj --gpkg lub --pipeline-report jako zrodlo bbox trasy.")
 
@@ -454,7 +451,7 @@ def run_pipeline(
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
-    print(f"  ortho_report.json: metadane + georef dla Unity")
+    print("  ortho_report.json: metadane + georef dla Unity")
 
     print("\n[6/6] Weryfikacja...")
     print(f"  Rozdzielczosc zrodlowa:  {tif_info['files'][0]['res_x']:.3f} m/px")

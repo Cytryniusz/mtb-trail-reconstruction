@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import numpy as np
 
 _VIRIDIS = np.array([
@@ -40,11 +41,11 @@ def build_delaunay_mesh(
     """
     try:
         from scipy.spatial import Delaunay
-    except ImportError:
+    except ImportError as exc:
         raise ImportError(
             "Do siatki Delaunay potrzebna jest biblioteka scipy. "
             "Zainstaluj: pip install scipy"
-        )
+        ) from exc
     tri = Delaunay(points[:, :2])
     triangles = tri.simplices
 

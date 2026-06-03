@@ -32,14 +32,12 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 from PIL import Image
 from scipy import ndimage
-
 
 # ============================================================================
 # Konfiguracja
@@ -133,10 +131,10 @@ def load_lidar_classified(path: Path) -> dict:
     """Wczytuje LAZ/LAS z klasyfikacja ASPRS."""
     try:
         import laspy
-    except ImportError:
+    except ImportError as exc:
         raise ImportError(
             "Wymagana biblioteka laspy: pip install laspy[lazrs]"
-        )
+        ) from exc
 
     las = laspy.read(str(path))
     xyz = np.column_stack([
@@ -163,8 +161,8 @@ def load_gps_xy(gpkg_path: Path, layer: str = "track_points",
     """Wczytuje slad GPS z GPKG, sortuje po point_id/distance_km."""
     try:
         import geopandas as gpd
-    except ImportError:
-        raise ImportError("Wymagana biblioteka geopandas")
+    except ImportError as exc:
+        raise ImportError("Wymagana biblioteka geopandas") from exc
 
     track = gpd.read_file(gpkg_path, layer=layer)
     if track.empty:
@@ -182,6 +180,7 @@ def load_gps_xy(gpkg_path: Path, layer: str = "track_points",
         track = track.sort_values("distance_km")
 
     from typing import cast
+
     from shapely.geometry import Point
 
     return np.array([(cast(Point, p).x, cast(Point, p).y) for p in track.geometry], dtype=float)
@@ -508,11 +507,11 @@ def save_layer_debug(splatmap: np.ndarray, output_dir: Path) -> None:
 
 def run_pipeline(
     las_path: Path,
-    gpkg_path: Optional[Path],
+    gpkg_path: Path | None,
     output_dir: Path,
-    config: Optional[SplatmapConfig] = None,
+    config: SplatmapConfig | None = None,
     gpkg_layer: str = "track_points",
-    bounds_override: Optional[SplatmapBounds] = None,
+    bounds_override: SplatmapBounds | None = None,
     save_debug_layers: bool = True,
 ) -> dict:
     """Pelny pipeline: LAZ + GPKG -> splatmap.png + preview + raport JSON."""
@@ -521,7 +520,7 @@ def run_pipeline(
 
     print()
     print("=" * 86)
-    print(f"  Splatmap pipeline")
+    print("  Splatmap pipeline")
     print(f"  LAZ:  {las_path}")
     print(f"  GPKG: {gpkg_path if gpkg_path else '(brak - warstwa PATH bedzie pusta)'}")
     print(f"  Output: {output_dir.resolve()}")
@@ -532,8 +531,8 @@ def run_pipeline(
     lidar = load_lidar_classified(las_path)
     print(f"  Punktow: {lidar['n_points']:,}")
     unique_cls, counts = np.unique(lidar["classification"], return_counts=True)
-    print(f"  Klasy ASPRS w pliku: " +
-          ", ".join(f"{int(c)}({int(n):,})" for c, n in zip(unique_cls, counts)))
+    print("  Klasy ASPRS w pliku: " +
+          ", ".join(f"{int(c)}({int(n):,})" for c, n in zip(unique_cls, counts, strict=False)))
 
     gps_xy = np.empty((0, 2))
     if gpkg_path:
@@ -572,7 +571,7 @@ def run_pipeline(
 
     if save_debug_layers:
         save_layer_debug(splatmap, output_dir)
-        print(f"  Debug warstwy: layer_0_ground.png .. layer_3_rock.png")
+        print("  Debug warstwy: layer_0_ground.png .. layer_3_rock.png")
 
     # ---- Raport JSON
     report = {

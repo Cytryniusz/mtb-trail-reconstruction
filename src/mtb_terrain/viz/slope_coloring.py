@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import numpy as np
 
 _SLOPE_CLASSES: list[tuple[float, tuple[float, float, float]]] = [

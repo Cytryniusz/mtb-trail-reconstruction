@@ -62,6 +62,7 @@ ENV/
 
 # ---- Testy / pokrycie ----
 .pytest_cache/
+.ruff_cache/
 .coverage
 .coverage.*
 htmlcov/

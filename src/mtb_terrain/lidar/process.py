@@ -4,7 +4,6 @@ import argparse
 import json
 from pathlib import Path
 
-
 DEFAULT_DATA_DIR = Path("data")
 DEFAULT_OUTPUT_DIR = Path("processed")
 DEFAULT_RESULTS_DIR = Path("results")
@@ -78,7 +77,7 @@ def save_ground_laz(
     output_laz_path: Path,
     smrf_slope: float,
     smrf_window: float,
-        _threshold: float,
+    smrf_threshold: float,
     smrf_scalar: float,
 ) -> None:
     output_laz_path.parent.mkdir(parents=True, exist_ok=True)

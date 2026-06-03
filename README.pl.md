@@ -1,5 +1,7 @@
 # MTB Trail Reconstruction
 
+[![CI](https://github.com/Cytryniusz/mtb-trail-reconstruction/actions/workflows/ci.yml/badge.svg)](https://github.com/Cytryniusz/mtb-trail-reconstruction/actions/workflows/ci.yml)
+
 Kompletny pipeline przetwarzania danych geoprzestrzennych (LiDAR + GPS + ortofoto) do fotorealistycznej trojwymiarowej wizualizacji trasy MTB w silniku Unity.
 
 > Repozytorium kodu do pracy inzynierskiej (2026). Skrocona wersja po angielsku: [`README.md`](README.md).
@@ -13,6 +15,7 @@ Kompletny pipeline przetwarzania danych geoprzestrzennych (LiDAR + GPS + ortofot
 ## Cel pracy
 
 System umozliwia pozyskanie, integracje i przetworzenie wielosensorowych danych geoprzestrzennych — w szczegolnosci:
+
 - chmury punktow **LiDAR** (LAS/LAZ),
 - numerycznych modeli terenu (**DEM/DTM**),
 - **ortofotomap** (GeoTIFF),
@@ -23,11 +26,13 @@ a nastepnie wygenerowanie z nich fotorealistycznej sceny trasy MTB gotowej do im
 ## Co dokladnie robi pipeline
 
 Dla pojedynczej trasy MTB przetwarza:
+
 - jeden lub wiecej plikow `.laz` (np. z GUGiK dla obszaru Polski),
 - slad `.gpx` z urzadzenia sportowego (Garmin, Wahoo, Strava itp.),
 - kafle ortofoto `.tif` pokrywajace obszar trasy,
 
 i produkuje:
+
 - oczyszczony, sklasyfikowany mesh terenu w czterech poziomach szczegolowosci (LOD0–LOD3) gotowy do Unity (`.obj` + `.ply`),
 - teksture ortofoto o rozmiarze potegi 2, zgeoreferencjowana do mesh-a,
 - 4-kanalowa splatmape (ground / path / undergrowth / rock) dla Unity Terrain Layers,
@@ -115,15 +120,15 @@ mtb-trail-reconstruction/
 
 ## Wykorzystane technologie
 
-| Dziedzina | Narzedzie | Po co |
-|---|---|---|
-| Chmury punktow | **PDAL** + **laspy** | Filtracja, klasyfikacja, IO dla LAS/LAZ |
-| Geometria 3D | **Open3D** | Operacje na mesh-ach, Taubin smoothing, decymacja QECD |
-| Geoprzestrzennie | **GeoPandas**, **Shapely**, **rasterio** | CRS, GPKG, mozaika rastrow |
-| GPS | **gpxpy** | Parser GPX |
-| Obrazy | **Pillow** + **NumPy** | Resize tekstur, rasteryzacja splatmapy |
-| Numeryka | **NumPy**, **SciPy** | Delaunay, Savitzky-Golay, filtry Gaussa |
-| Silnik 3D | **Unity 2022.3 LTS** (URP) | Renderer + scena |
+| Dziedzina        | Narzedzie                                | Po co                                                  |
+| ---------------- | ---------------------------------------- | ------------------------------------------------------ |
+| Chmury punktow   | **PDAL** + **laspy**                     | Filtracja, klasyfikacja, IO dla LAS/LAZ                |
+| Geometria 3D     | **Open3D**                               | Operacje na mesh-ach, Taubin smoothing, decymacja QECD |
+| Geoprzestrzennie | **GeoPandas**, **Shapely**, **rasterio** | CRS, GPKG, mozaika rastrow                             |
+| GPS              | **gpxpy**                                | Parser GPX                                             |
+| Obrazy           | **Pillow** + **NumPy**                   | Resize tekstur, rasteryzacja splatmapy                 |
+| Numeryka         | **NumPy**, **SciPy**                     | Delaunay, Savitzky-Golay, filtry Gaussa                |
+| Silnik 3D        | **Unity 2022.3 LTS** (URP)               | Renderer + scena                                       |
 
 ## Dokumentacja
 

@@ -27,14 +27,13 @@ Mozna tez importowac jako modul:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import open3d as o3d
-
 
 # ============================================================================
 # 1. PDAL pre-cleanup chmury punktow (opcjonalne)
@@ -252,10 +251,8 @@ def mesh_cleanup(
     # 6. Normalne i orientacja
     cleaned.compute_vertex_normals()
     cleaned.compute_triangle_normals()
-    try:
+    with contextlib.suppress(Exception):
         cleaned.orient_triangles()
-    except Exception:
-        pass
 
     final_v = len(cleaned.vertices)
     final_f = len(cleaned.triangles)
@@ -306,7 +303,7 @@ def generate_lods(
     current = o3d.geometry.TriangleMesh(mesh)
     current_faces = len(current.triangles)
 
-    for name, target in zip(config.names(), config.targets):
+    for name, target in zip(config.names(), config.targets, strict=False):
         if target >= current_faces:
             log(f"{name}: zachowuje {current_faces:,} f (target {target:,} >= aktualne)")
             lod = o3d.geometry.TriangleMesh(current)
@@ -398,7 +395,7 @@ def print_summary_table(report: dict) -> None:
     widths = [12, 12, 12, 14, 10, 14, 10]
 
     def row(values: list) -> str:
-        return "".join(str(v).ljust(w) for v, w in zip(values, widths))
+        return "".join(str(v).ljust(w) for v, w in zip(values, widths, strict=False))
 
     print(row(headers))
     print("-" * sum(widths))
@@ -434,7 +431,7 @@ def export_mesh_variants(
     mesh: o3d.geometry.TriangleMesh,
     output_dir: Path,
     name: str,
-    unity_centroid: Optional[np.ndarray] = None,
+    unity_centroid: np.ndarray | None = None,
     formats: tuple = ("ply", "obj"),
 ) -> dict[str, str]:
     """
@@ -472,8 +469,8 @@ def export_mesh_variants(
 def run_pipeline(
     input_mesh_path: Path,
     output_dir: Path,
-    cleanup_config: Optional[CleanupConfig] = None,
-    lod_config: Optional[LODConfig] = None,
+    cleanup_config: CleanupConfig | None = None,
+    lod_config: LODConfig | None = None,
     export_formats: tuple = ("ply", "obj"),
     save_intermediate: bool = True,
 ) -> dict:

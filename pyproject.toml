@@ -32,6 +32,10 @@ target-version = "py311"
 select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
 ignore = ["E501"]  # line length juz pilnuje formatter
 
+[tool.ruff.lint.per-file-ignores]
+# Wrappery CLI swiadomie modyfikuja sys.path PRZED importem mtb_terrain
+"scripts/*.py" = ["E402"]
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
