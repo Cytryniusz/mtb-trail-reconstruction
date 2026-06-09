@@ -6,7 +6,7 @@ Uzycie:
     python scripts/run_all.py --laz data/lidar/X.laz --gpx data/gps_trace/Y.gpx \\
                               --ortho-tifs data/ortho/A.tif data/ortho/B.tif
 
-Pomija etapy ktorych wyniki juz istnieja (idempotentnie).
+Pomija etapy ktorych wyniki juz istnieja.
 """
 from __future__ import annotations
 
@@ -52,6 +52,9 @@ def main() -> None:
     laz_ground = _PROCESSED / f"{args.laz.stem}_filtered_ground.laz"
     gpkg = _PROCESSED / f"{args.gpx.stem}_epsg2180.gpkg"
     mesh = _RESULTS / "mesh_delaunay.ply"
+    mesh_lod0_filled = _RESULTS / "lod" / "filled" / "mesh_LOD0_unity_filled.obj"
+    mesh_lod0 = _RESULTS / "lod" / "mesh_LOD0_unity.obj"
+    textured = _RESULTS / "textured" / "mesh_LOD0_unity_filled_textured.obj"
 
     step("01 Cleanup LAZ", ["scripts/01_clean_lidar.py", "--input", str(args.laz),
                             "--output", str(laz_filtered)],
@@ -80,6 +83,11 @@ def main() -> None:
 
     step("07 Build splatmap", ["scripts/07_build_splatmap.py",
                                "--las", str(laz_filtered), "--gpkg", str(gpkg)])
+    
+    texture_mesh = mesh_lod0_filled if mesh_lod0_filled.exists() else mesh_lod0
+    step("08 Apply texture", ["scripts/08_apply_texture.py",
+                              "--mesh", str(texture_mesh)],
+         skip_if_exists=textured)
 
     print("\n[DONE] Wszystkie etapy zakonczone. Wyniki w:", _RESULTS)
 
