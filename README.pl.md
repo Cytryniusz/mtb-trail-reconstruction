@@ -35,6 +35,7 @@ i produkuje:
 
 - oczyszczony, sklasyfikowany mesh terenu w czterech poziomach szczegolowosci (LOD0–LOD3) gotowy do Unity (`.obj` + `.ply`),
 - teksture ortofoto o rozmiarze potegi 2, zgeoreferencjowana do mesh-a,
+- oteksturowany mesh LOD0 (`.obj` + `.mtl`) z planarnym mapowaniem UV z ortofoto, gotowy do importu w Unity,
 - 4-kanalowa splatmape (ground / path / undergrowth / rock) dla Unity Terrain Layers,
 - profil wysokosciowy trasy kolorowany wg klas nachylenia,
 - raporty w JSON-ie (statystyki LOD-ow, metadane georeferencji) — gotowy material do rozdzialu eksperymentow w pracy.
@@ -60,6 +61,10 @@ i produkuje:
                    |
                    v
               results/lod/mesh_LOD{0..3}_unity.{ply,obj}
+                                  |
+              [08] nakladanie tekstury (planarne UV: mesh LOD0 x ortho.png)
+                                  |
+              results/textured/mesh_LOD0_unity_textured.obj (+ .mtl)
                                   +
               [07] splatmap RGBA  -> results/splatmap/splatmap.png
                                   +
@@ -106,9 +111,10 @@ mtb-trail-reconstruction/
 |   |-- gps/                 Parsowanie GPX + reprojekcja do EPSG:2180
 |   |-- mesh/                Delaunay 2.5D + Poisson, cleanup, kaskada LOD
 |   |-- ortho/               Mozaika ortofoto + crop + resize pod Unity
+|   |-- texture/             Planarna projekcja UV ortofoto na mesh LOD0
 |   |-- splatmap/            Generacja 4-kanalowej splatmapy terenu
 |   `-- viz/                 Profile wysokosci, kolorowanie wg nachylenia
-|-- scripts/                 Cienkie wrappery CLI (01_..07_ + run_all.py)
+|-- scripts/                 Cienkie wrappery CLI (01_..08_ + run_all.py)
 |-- configs/default.yaml     Referencyjna konfiguracja (CRS, filtry, LOD)
 |-- data/                    (gitignored) surowe dane wejsciowe
 |-- processed/               (gitignored) pliki posrednie

@@ -393,12 +393,20 @@ def run_pipeline(
         print(f"  Zrodlo bbox: GPKG ({gpkg_path.name})")
     elif pipeline_report_path:
         bbox = bbox_from_pipeline_report(pipeline_report_path, config.padding_m)
-        with open(pipeline_report_path) as f:
-            rpt = json.load(f)
-        unity_centroid = rpt.get("unity_centroid")
         print("  Zrodlo bbox: pipeline_report.json")
     else:
         raise ValueError("Podaj --gpkg lub --pipeline-report jako zrodlo bbox trasy.")
+
+    # unity_centroid jest potrzebny do unity_bounds (UV mapping mesha w Unity).
+    # Wczytujemy go z pipeline_report ZAWSZE gdy podany — niezaleznie od zrodla
+    # bbox. Dzieki temu mozna laczyc bbox z GPKG (pelny zasiag trasy) z
+    # centroidem mesha, co jest wymagane przez krok 08 (potrzebuje unity_bounds).
+    if pipeline_report_path:
+        with open(pipeline_report_path, encoding="utf-8") as f:
+            unity_centroid = json.load(f).get("unity_centroid")
+        if unity_centroid:
+            print(f"  unity_centroid (z {pipeline_report_path.name}): "
+                  f"[{unity_centroid[0]:.1f}, {unity_centroid[1]:.1f}]")
 
     print(f"  Bbox: X[{bbox['xmin']:.0f}, {bbox['xmax']:.0f}] "
           f"Y[{bbox['ymin']:.0f}, {bbox['ymax']:.0f}] "

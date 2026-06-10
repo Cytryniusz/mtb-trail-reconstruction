@@ -12,7 +12,6 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import open3d as o3d
@@ -52,8 +51,19 @@ def compute_planar_uv(
     bounds: dict,
     horizontal_axis: int = 0,
     depth_axis: int = 2,
-    flip_v: bool = True,
+    flip_v: bool = False,
 ) -> np.ndarray:
+    """Planarna projekcja UV z pozycji wierzcholka w plaszczyznie poziomej.
+
+    Konwencja UV (OBJ/Unity/OpenGL): origin = lewy-DOLNY rog tekstury,
+    V rosnie w gore, V=1 = gorny wiersz obrazu PNG.
+    ortho.png jest zapisywane wierszami z polnocy na poludnie (wiersz 0 = ymax),
+    wiec gorny wiersz (V=1) odpowiada ymax (polnoc), a dolny (V=0) ymin.
+    Dlatego poprawne jest V = (y - ymin) / height BEZ odwracania (flip_v=False).
+
+    flip_v=True odwracalo teren w osi polnoc-poludnie — tekstura nakladala
+    sie lustrzanie wzgledem geometrii (na trase trafialy bledne obszary).
+    """
     u_raw = vertices[:, horizontal_axis]
     v_raw = vertices[:, depth_axis]
 
@@ -178,7 +188,9 @@ def process_mesh(
 
     if copy_texture:
         dest_texture = output_dir / texture_name
-        if not dest_texture.exists():
+        # Zawsze nadpisuj — ortofoto moglo zostac zregenerowane (np. inne kafle),
+        # a nieaktualna kopia tekstury dawalaby zle dopasowanie w Unity.
+        if dest_texture.resolve() != ortho_image_path.resolve():
             shutil.copy2(ortho_image_path, dest_texture)
             print(f"  Skopiowano teksture: {texture_name}")
 

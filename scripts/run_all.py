@@ -54,7 +54,6 @@ def main() -> None:
     mesh = _RESULTS / "mesh_delaunay.ply"
     mesh_lod0_filled = _RESULTS / "lod" / "filled" / "mesh_LOD0_unity_filled.obj"
     mesh_lod0 = _RESULTS / "lod" / "mesh_LOD0_unity.obj"
-    textured = _RESULTS / "textured" / "mesh_LOD0_unity_filled_textured.obj"
 
     step("01 Cleanup LAZ", ["scripts/01_clean_lidar.py", "--input", str(args.laz),
                             "--output", str(laz_filtered)],
@@ -77,17 +76,20 @@ def main() -> None:
 
     step("05 Generate LOD", ["scripts/05_generate_lod.py", "--input", str(mesh)])
 
+    pipeline_report = _RESULTS / "lod" / "pipeline_report.json"
     step("06 Process ortho", ["scripts/06_process_ortho.py",
                               "--tifs", *[str(t) for t in args.ortho_tifs],
-                              "--gpkg", str(gpkg)])
+                              "--gpkg", str(gpkg),
+                              "--pipeline-report", str(pipeline_report)])
 
     step("07 Build splatmap", ["scripts/07_build_splatmap.py",
                                "--las", str(laz_filtered), "--gpkg", str(gpkg)])
-    
+
     texture_mesh = mesh_lod0_filled if mesh_lod0_filled.exists() else mesh_lod0
+    # Bez skip_if_exists: krok 06 zawsze regeneruje ortofoto, wiec tekstura
+    # musi byc przeliczona na nowo, inaczej _textured.obj pozostalby nieaktualny.
     step("08 Apply texture", ["scripts/08_apply_texture.py",
-                              "--mesh", str(texture_mesh)],
-         skip_if_exists=textured)
+                              "--mesh", str(texture_mesh)])
 
     print("\n[DONE] Wszystkie etapy zakonczone. Wyniki w:", _RESULTS)
 

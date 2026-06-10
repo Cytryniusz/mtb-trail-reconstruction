@@ -24,6 +24,7 @@ it produces:
 
 - a cleaned, classified, decimated terrain mesh in four LOD levels (Unity-ready `.obj`/`.ply`),
 - a power-of-two orthophoto texture, georeferenced to the mesh,
+- a textured LOD0 mesh (`.obj` + `.mtl`) with planar UV mapping baked from the orthophoto, ready to drop into Unity,
 - a 4-channel terrain splatmap (ground / path / undergrowth / rock) for Unity Terrain Layers,
 - an elevation profile coloured by slope class,
 - structured JSON reports for the thesis chapter on experiments.
@@ -49,6 +50,10 @@ it produces:
                    |
                    v
               results/lod/mesh_LOD{0..3}_unity.{ply,obj}
+                                  |
+              [08] apply texture (planar UV: LOD0 mesh x ortho.png)
+                                  |
+              results/textured/mesh_LOD0_unity_textured.obj (+ .mtl)
                                   +
               [07] splatmap RGBA  -> results/splatmap/splatmap.png
                                   +
@@ -95,9 +100,10 @@ mtb-trail-reconstruction/
 |   |-- gps/                 GPX parsing + reprojection to EPSG:2180
 |   |-- mesh/                Delaunay 2.5D + Poisson, cleanup, LOD cascade
 |   |-- ortho/               Orthophoto mosaic + crop + Unity-ready resize
+|   |-- texture/             Planar UV projection of the ortho onto the LOD0 mesh
 |   |-- splatmap/            4-channel terrain splatmap generation
 |   `-- viz/                 Slope-coloured profiles and visualisation helpers
-|-- scripts/                 Thin CLI wrappers (01_..07_ + run_all.py)
+|-- scripts/                 Thin CLI wrappers (01_..08_ + run_all.py)
 |-- configs/default.yaml     Reference configuration (CRS, filters, LOD targets)
 |-- data/                    (gitignored) raw inputs -- see data/README.md
 |-- processed/               (gitignored) intermediate artefacts
