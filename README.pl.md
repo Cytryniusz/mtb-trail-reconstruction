@@ -140,7 +140,6 @@ mtb-trail-reconstruction/
 
 - [`docs/pipeline.md`](docs/pipeline.md) — szczegolowy opis kazdego etapu pipeline-u
 - [`docs/data_sources.md`](docs/data_sources.md) — skad pobrac dane wejsciowe dla Polski
-- [`MIGRATION.md`](MIGRATION.md) — historia struktury repo, instrukcja git/GitHub
 - [`README.md`](README.md) — skrocona wersja angielska
 
 ## Status

@@ -129,7 +129,6 @@ mtb-trail-reconstruction/
 
 - [`docs/pipeline.md`](docs/pipeline.md) -- step-by-step description of each stage and why it exists
 - [`docs/data_sources.md`](docs/data_sources.md) -- where to download the LiDAR, GPX and orthophoto inputs for Poland
-- [`MIGRATION.md`](MIGRATION.md) -- how this repo was structured and how to publish/maintain it
 - [`README.pl.md`](README.pl.md) -- full Polish documentation (the thesis is written in Polish)
 
 ## Status

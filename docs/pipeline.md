@@ -1,6 +1,6 @@
 # Pipeline — opis krok po kroku
 
-Dokument szczegolowo opisuje siedem etapow pipeline-u zaimplementowanego w `src/mtb_terrain/` oraz cienkich wrapperach w `scripts/0X_*.py`.
+Dokument szczegolowo opisuje osiem etapow pipeline-u zaimplementowanego w `src/mtb_terrain/` oraz cienkich wrapperach w `scripts/0X_*.py`.
 
 ## Diagram przeplywu
 
@@ -19,8 +19,10 @@ flowchart TD
     B --> O[07_build_splatmap.py]
     H --> O
     O --> P[results/splatmap/splatmap.png RGBA]
-    K --> Q[Unity URP scena]
-    N --> Q
+    K --> R[08_apply_texture.py]
+    N --> R
+    R --> S[results/textured/mesh_LOD0_unity_textured.obj + .mtl]
+    S --> Q[Unity URP scena]
     P --> Q
 ```
 
@@ -120,6 +122,28 @@ Eksport:
 - `splatmap.png` (RGBA), `splatmap_preview.png` (RGB pseudo-realistyczny do weryfikacji),
 - `layer_{0..3}_<nazwa>.png` (debug — kazda warstwa osobno),
 - `splatmap_report.json` (statystyki pokrycia warstw).
+
+## 08. Nakladanie tekstury — `08_apply_texture.py`
+
+**Modul:** `mtb_terrain.texture.pipeline`
+
+Nanosi ortofoto z kroku 06 na mesh (domyslnie LOD0) jako teksture przez **planarna projekcje UV** — bez potrzeby uzywania zewnetrznego narzedzia (Blender/Unity) do unwrappingu.
+
+Co robi:
+1. Wczytuje granice ortofoto z `ortho_report.json`. Domyslnie uzywa `unity_bounds` (wycentrowanych do origin tym samym centroidem co `_unity` mesh), zeby UV liczyc w tym samym ukladzie co wierzcholki. Dlatego krok 06 musi byc uruchomiony z `--pipeline-report` (dostarcza `unity_centroid` → `unity_bounds`); inaczej krok 08 zglosi blad braku `unity_bounds`.
+2. Dla kazdego wierzcholka liczy UV z jego pozycji w plaszczyznie poziomej (os wysokosci `--vertical-axis`, domyslnie `z` → U z osi X, V z osi Y):
+   - `u = (x - xmin) / width`, `v = (y - ymin) / height` — **bez odwracania V**.
+3. Raportuje pokrycie UV w `[0,1]` (ostrzega, gdy >5% wierzcholkow wypada poza zakres — sygnal niezgodnosci ukladu lub zlej osi wysokosci).
+4. Zapisuje `.obj` z gotowymi `vt` + `.mtl` wskazujacy na `ortho.png`, kopiuje teksture do katalogu wyjsciowego (nadpisuje — stara kopia po zmianie kafli dawalaby zle dopasowanie).
+
+> **Konwencja UV.** `ortho.png` jest zapisywane wierszami z polnocy na poludnie (wiersz 0 = `ymax`). W konwencji OBJ/Unity/OpenGL `V=1` to gorny wiersz obrazu, wiec poprawne jest `V = (y - ymin) / height` **bez** `1 - V`. Odwrocenie V powodowaloby lustrzane odbicie tekstury w osi polnoc-poludnie (na trase trafialyby bledne obszary ortofoto).
+
+**Wyjscie:**
+- `results/textured/mesh_LOD0_unity_textured.obj` + `.mtl`,
+- kopia `ortho.png` obok OBJ (sciezka wzgledna w `.mtl`),
+- `texturing_report.json` ze statystykami pokrycia UV.
+
+W Unity wystarczy zaimportowac `_textured.obj` — tekstura zaladuje sie z `.mtl`.
 
 ## Decyzje projektowe
 
