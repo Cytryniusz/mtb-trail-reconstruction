@@ -106,3 +106,6 @@ docs/superpowers/
 # ---- Wyniki eksperymentow (logi) ----
 logs/
 *.log
+
+# ---- Graf i jego pliki wyjściowe ----
+graphify-out/
